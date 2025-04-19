@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Loyalty;
 use Illuminate\Support\Facades\DB;
 use App\Models\Package;
+use App\Notifications\BookingConfirmed;
 
 
 class AdminBookingController extends Controller
@@ -69,6 +70,8 @@ class AdminBookingController extends Controller
         if (in_array($newStatus, ['confirmed', 'completed']) && !in_array($oldStatus, ['confirmed', 'completed'])) {
             $pointsEarned = $booking->total_price * 0.1;
 
+            $booking->customer->notify(new BookingConfirmed($booking));
+            // Add points to customer's total
             $customer->increment('loyalty_points', $pointsEarned);
 
             Loyalty::create([
@@ -175,4 +178,31 @@ class AdminBookingController extends Controller
     //         return response()->json(['message' => 'Booking failed', 'error' => $e->getMessage()], 500);
     //     }
     // }
+    
+    public function verifyPaymentProof(Request $request, int $id): JsonResponse
+    {
+        $staff = Auth::guard('staff')->user();
+
+        if (!in_array($staff->role, ['Admin', 'manager'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'payment_verified' => 'required|in:verified,rejected'
+        ]);
+
+        $booking = Booking::find($id);
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        $booking->update(['payment_verified' => $request->payment_verified]);
+
+        return response()->json([
+            'message' => 'Payment proof has been ' . $request->payment_verified,
+            'booking' => $booking
+        ]);
+    }
+
+
 }

@@ -99,15 +99,54 @@ class BookingController extends Controller
     }
 
     public function confirmed(): JsonResponse
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    // You can adjust this based on whether it's Customer or Staff
-    $bookings = $user->bookings()
-        ->whereIn('status', ['confirmed', 'completed'])
-        ->with('package') // if you want package info too
-        ->get();
+        // You can adjust this based on whether it's Customer or Staff
+        $bookings = $user->bookings()
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->with('package') // if you want package info too
+            ->get();
 
-    return response()->json($bookings);
-}
+        return response()->json($bookings);
+    }
+    public function updateByCustomer(Request $request, $id): JsonResponse
+    {
+        $booking = Booking::find($id);
+        $customer = Auth::user();
+
+        if (!$booking || $booking->customer_id !== $customer->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'number_of_people' => 'required|integer|min:1',
+            'special_requests' => 'nullable|string|max:1000',
+            'payment_reference' => 'nullable|file|mimes:jpg,jpeg,png,pdf'
+        ]);
+
+        // Save file if uploaded
+        if ($request->hasFile('payment_reference')) {
+            $path = $request->file('payment_reference')->store('payment_proofs', 'public');
+            $booking->update([
+                'payment_reference' => $path,
+                'payment_verified' => 'pending'
+            ]);
+        }
+
+        // Update editable fields
+        $booking->update([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'number_of_people' => $request->number_of_people,
+            'special_requests' => $request->special_requests,
+        ]);
+
+        // Optionally: notify admin via Notification/Event
+        // Notification::send($adminUsers, new BookingUpdatedNotification($booking));
+
+        return response()->json(['message' => 'Booking updated. Pending admin confirmation.']);
+    }
 }
