@@ -6,6 +6,8 @@ use App\Models\Quote;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\QuoteReceivedMail;
+use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
 {
@@ -21,7 +23,7 @@ class QuoteController extends Controller
     // Create a new quote request
     public function store(Request $request): JsonResponse
     {
-        $customer = Auth::user();
+        $customer = $request->user();
 
         $request->validate([
             'package_id' => 'required|exists:packages,id',
@@ -40,6 +42,11 @@ class QuoteController extends Controller
             'special_requests' => $request->special_requests
         ]);
 
-        return response()->json(['message' => 'Quote request submitted', 'data' => $quote], 201);
+        Mail::to($customer->email)->send(new QuoteReceivedMail($quote->load('package', 'customer')));
+
+        return response()->json([
+            'message' => 'Quote request submitted. You will receive an email confirmation shortly.',
+            'data' => $quote
+        ], 201);
     }
 }

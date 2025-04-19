@@ -23,7 +23,7 @@ class StaffAuthController extends Controller
 
         $staff = Staff::where('email', $request->email)->first();
 
-        if (! $staff || ! Hash::check($request->password, $staff->password)) {
+        if (! $staff || ! Hash::check($request->password, $staff->password) || !$staff->is_enabled) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.']
             ]);

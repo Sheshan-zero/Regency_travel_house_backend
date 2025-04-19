@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class QuoteResponseMail extends Mailable
+class QuoteReceivedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,11 +20,7 @@ class QuoteResponseMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Quote is Ready')
-                ->markdown('emails.quotes.response-ready')
-                ->with([
-                    'customerName' => $this->quote->customer->full_name,
-                    'quoteId' => $this->quote->id,
-                ]);
+        return $this->subject('Your Quote Request Has Been Received')
+                    ->view('emails.quote-received');
     }
 }
