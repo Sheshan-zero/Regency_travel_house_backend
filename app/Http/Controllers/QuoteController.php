@@ -28,6 +28,7 @@ class QuoteController extends Controller
             'start_date' => 'required|date|after:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'number_of_people' => 'required|integer|min:1',
+            'estimated_price'=>'nullable|integer|min:1',
             'special_requests' => 'nullable|string|max:1000'
         ]);
 
@@ -35,6 +36,7 @@ class QuoteController extends Controller
             'customer_id' => $customer->id,
             'package_id' => $request->package_id,
             'number_of_people' => $request->number_of_people,
+            'estimated_price'=>$request->estimated_price,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'special_requests' => $request->special_requests

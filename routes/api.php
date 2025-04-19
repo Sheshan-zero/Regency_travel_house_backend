@@ -211,6 +211,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/complaints/{complaint}', [ComplaintController::class, 'show']);
     Route::put('/complaints/{complaint}', [ComplaintController::class, 'update']);
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy']);
+
+    Route::post('/quotes', [QuoteController::class, 'store']);
 });
 
 /*
@@ -241,7 +243,7 @@ Route::middleware('auth:staff')->group(function () {
     Route::get('/customer/loyalty/history', [CustomerAuthController::class, 'loyaltyHistory']);
 
     Route::get('/quotes', [QuoteController::class, 'index']);
-    Route::post('/quotes', [QuoteController::class, 'store']);
+    // Route::post('/quotes', [QuoteController::class, 'store']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
