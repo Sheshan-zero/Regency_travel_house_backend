@@ -42,6 +42,54 @@ class AdminBookingController extends Controller
             : response()->json(['message' => 'Booking not found'], 404);
     }
 
+    // public function update(Request $request, int $id): JsonResponse
+    // {
+    //     $staff = Auth::guard('staff')->user();
+
+    //     if (!in_array($staff->role, ['Admin', 'manager'])) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     $booking = Booking::with('customer')->find($id);
+    //     if (!$booking) {
+    //         return response()->json(['message' => 'Booking not found'], 404);
+    //     }
+
+    //     $request->validate([
+    //         'travel_date' => 'nullable|date|after:today',
+    //         'status' => 'nullable|in:pending,confirmed,completed,cancelled',
+    //         'payment_reference' => 'nullable|string|max:255'
+    //     ]);
+
+    //     $oldStatus = $booking->status;
+    //     $booking->update($request->only(['status', 'payment_reference', 'travel_date']));
+
+    //     $newStatus = $request->status;
+    //     $customer = $booking->customer;
+
+    //     // Loyalty logic ONLY when transitioning to confirmed/completed from a non-qualified state
+    //     if (in_array($newStatus, ['confirmed', 'completed']) && !in_array($oldStatus, ['confirmed', 'completed'])) {
+    //         $pointsEarned = $booking->total_price * 0.1;
+
+    //         $booking->customer->notify(new BookingConfirmed($booking));
+    //         // Add points to customer's total
+    //         $customer->increment('loyalty_points', $pointsEarned);
+
+    //         Loyalty::create([
+    //             'customer_id' => $customer->id,
+    //             'points_earned' => $pointsEarned,
+    //             'points_redeemed' => 0,
+    //             'last_updated' => now()
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'message' => 'Booking updated successfully.',
+    //         'booking' => $booking->fresh(['customer', 'package'])
+    //     ]);
+    // }
+
+
     public function update(Request $request, int $id): JsonResponse
     {
         $staff = Auth::guard('staff')->user();
@@ -55,23 +103,35 @@ class AdminBookingController extends Controller
             return response()->json(['message' => 'Booking not found'], 404);
         }
 
-        $request->validate([
+        $validated = $request->validate([
+            'travel_date' => 'nullable|date|after:today',
             'status' => 'nullable|in:pending,confirmed,completed,cancelled',
             'payment_reference' => 'nullable|string|max:255'
         ]);
 
         $oldStatus = $booking->status;
-        $booking->update($request->only(['status', 'payment_reference']));
 
-        $newStatus = $request->status;
+        // Update only provided fields
+        if (isset($validated['travel_date'])) {
+            $booking->travel_date = $validated['travel_date'];
+        }
+        if (isset($validated['status'])) {
+            $booking->status = $validated['status'];
+        }
+        if (isset($validated['payment_reference'])) {
+            $booking->payment_reference = $validated['payment_reference'];
+        }
+
+        $booking->save();
+
+        $newStatus = $booking->status;
         $customer = $booking->customer;
 
         // Loyalty logic ONLY when transitioning to confirmed/completed from a non-qualified state
         if (in_array($newStatus, ['confirmed', 'completed']) && !in_array($oldStatus, ['confirmed', 'completed'])) {
             $pointsEarned = $booking->total_price * 0.1;
 
-            $booking->customer->notify(new BookingConfirmed($booking));
-            // Add points to customer's total
+            $customer->notify(new BookingConfirmed($booking));
             $customer->increment('loyalty_points', $pointsEarned);
 
             Loyalty::create([
@@ -87,7 +147,8 @@ class AdminBookingController extends Controller
             'booking' => $booking->fresh(['customer', 'package'])
         ]);
     }
-    
+
+
     //Admin dashboard
     public function summary(): JsonResponse
     {
@@ -178,7 +239,7 @@ class AdminBookingController extends Controller
     //         return response()->json(['message' => 'Booking failed', 'error' => $e->getMessage()], 500);
     //     }
     // }
-    
+
     public function verifyPaymentProof(Request $request, int $id): JsonResponse
     {
         $staff = Auth::guard('staff')->user();
@@ -203,6 +264,4 @@ class AdminBookingController extends Controller
             'booking' => $booking
         ]);
     }
-
-
 }

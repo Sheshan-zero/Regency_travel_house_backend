@@ -14,28 +14,101 @@ class ImageController extends Controller
         return response()->json(Image::with('package')->get());
     }
 
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'image' => 'required|image|max:2048',
+    //         'section' => 'nullable|string',
+    //         'package_id' => 'nullable|exists:packages,id',
+    //         'destination_id' => 'nullable|exists:destinations,id'
+    //     ]);
+
+    //     $file = $request->file('image');
+    //     $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+    //     $file->storeAs('public/images', $filename);
+
+    //     $section = $request->section;
+    //     if (!$section && $request->has('destination_id')) {
+    //         $section = 'hero';
+    //     }
+
+    //     $section = $request->section;
+    //     if (!$section && $request->has('package_id')) {
+    //         $section = 'gallery';
+    //     }
+
+    //     $image = Image::create([
+    //         'filename' => $filename,
+    //         'section' => $section,
+    //         'package_id' => $request->package_id,
+    //         'destination_id' => $request->destination_id,
+    //     ]);
+
+    //     return response()->json(['message' => 'Image uploaded successfully', 'image' => $image]);
+    // }
+
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|max:2048',
+            'images.*' => 'required|image|max:2048',
             'section' => 'nullable|string',
             'package_id' => 'nullable|exists:packages,id',
             'destination_id' => 'nullable|exists:destinations,id'
         ]);
 
-        $file = $request->file('image');
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        $file->storeAs('public/images', $filename);
+        $uploadedImages = [];
 
-        $image = Image::create([
-            'filename' => $filename,
-            'section' => $request->section,
-            'package_id' => $request->package_id,
-            'destination_id' => $request->destination_id,
+        foreach ($request->file('images') as $file) {
+            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/images', $filename);
+
+            $section = $request->section;
+            if (!$section && $request->has('destination_id')) $section = 'hero';
+            if (!$section && $request->has('package_id')) $section = 'gallery';
+
+            $image = Image::create([
+                'filename' => $filename,
+                'section' => $section,
+                'package_id' => $request->package_id,
+                'destination_id' => $request->destination_id,
+            ]);
+
+            $uploadedImages[] = $image;
+        }
+
+        return response()->json([
+            'message' => 'Images uploaded successfully',
+            'images' => $uploadedImages
+        ]);
+    }
+
+
+    // In ImageController
+    public function storeMultiple(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'required|image|max:2048',
+            'package_id' => 'required|exists:packages,id',
         ]);
 
-        return response()->json(['message' => 'Image uploaded successfully', 'image' => $image]);
+        $uploaded = [];
+
+        foreach ($request->file('images') as $file) {
+            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/images', $filename);
+
+            $image = Image::create([
+                'filename' => $filename,
+                'package_id' => $request->package_id,
+                'section' => 'gallery',
+            ]);
+
+            $uploaded[] = $image;
+        }
+
+        return response()->json(['message' => 'Images uploaded', 'images' => $uploaded]);
     }
+
 
     public function show($id)
     {
@@ -59,11 +132,10 @@ class ImageController extends Controller
     // }
 
     public function getImagesByDestination($destination_id)
-{
-    $images = Image::where('destination_id', $destination_id)
-                   ->where('section', 'hero')
-                   ->get();
-    return response()->json($images);
-}
-
+    {
+        $images = Image::where('destination_id', $destination_id)
+            ->where('section', 'hero')
+            ->get();
+        return response()->json($images);
+    }
 }

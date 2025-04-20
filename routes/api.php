@@ -146,6 +146,8 @@ Route::post('/customers/login', [CustomerController::class, 'login']);
 Route::get('/all-packages-itineraries', [ItineraryController::class, 'allWithItineraries']);
 
 Route::get('/destinations/{id}/images', [ImageController::class, 'getImagesByDestination']);
+Route::get('/packages/categorized', [PackageController::class, 'categorizedPackages']);
+Route::get('/packages/category/{category}', [PackageController::class, 'getByCategory']);
 
 
 // Public Routes
@@ -217,11 +219,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/quotes', [QuoteController::class, 'store']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| Protected Routes - Staff
-|--------------------------------------------------------------------------
-*/
+//  Protected Routes - Staff
+
 Route::middleware('auth:staff')->group(function () {
     // Staff Auth
     Route::get('/staff/profile', [StaffAuthController::class, 'profile']);
@@ -256,6 +255,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:staff')->group(function () {
     Route::get('/staff/profile', [StaffAuthController::class, 'profile']);
     Route::post('/staff/logout', [StaffAuthController::class, 'logout']);
+    Route::post('/staff/register', [StaffAuthController::class, 'register']);
+
     Route::post('/packages', [PackageController::class, 'store']);
     Route::put('/packages/{id}', [PackageController::class, 'update']);
     Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
@@ -313,6 +314,9 @@ Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
     Route::post('/images', [ImageController::class, 'store']);
     Route::get('/images/{id}', [ImageController::class, 'show']);
     Route::delete('/images/{id}', [ImageController::class, 'destroy']);
+    // routes/api.php
+Route::post('/images/multiple', [ImageController::class, 'storeMultiple']);
+
 });
 
 // ---------------------
@@ -330,9 +334,7 @@ Route::middleware(['auth:staff', 'staff.role:Admin,Manager'])->group(function ()
     // Customer Profiles
     Route::get('/admin/customers', [CustomerAuthController::class, 'all']);            // List all customers
     Route::get('/admin/customers/{id}', [CustomerAuthController::class, 'details']);   // View specific customer
-
     Route::get('/dashboard/stats', [StaffDashboardController::class, 'index']);
-
     Route::put('/admin/bookings/{id}/verify-payment', [AdminBookingController::class, 'verifyPaymentProof']);
 
 });

@@ -21,7 +21,7 @@ class QuoteResponseMail extends Mailable
     public function build()
     {
         return $this->subject('Your Quote is Ready')
-                ->markdown('emails.quotes.response-ready')
+                ->markdown('emails.quote_response')
                 ->with([
                     'customerName' => $this->quote->customer->full_name,
                     'quoteId' => $this->quote->id,

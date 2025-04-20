@@ -27,6 +27,7 @@ class QuoteController extends Controller
 
         $request->validate([
             'package_id' => 'required|exists:packages,id',
+            
             'start_date' => 'required|date|after:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'number_of_people' => 'required|integer|min:1',

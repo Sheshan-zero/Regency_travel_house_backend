@@ -30,16 +30,17 @@ class PackageController extends Controller
             'destination_id' => 'required|exists:destinations,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'activities'=>'nullable|string',
+            'activities' => 'nullable|string',
             'include' => 'nullable|string',
-            'exclude'=>'nullable|string',
+            'exclude' => 'nullable|string',
             'price_per_person' => 'required|numeric|min:0',
             'duration_days' => 'required|integer|min:1',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'available_slots' => 'required|integer|min:0',
             'image_url' => 'nullable|url',
-            'is_featured' => 'boolean'
+            'is_featured' => 'boolean',
+            'category' => 'nullable|string'
         ]);
 
         $package = Package::create($validated);
@@ -88,7 +89,8 @@ class PackageController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'available_slots' => 'sometimes|integer|min:0',
             'image_url' => 'nullable|url',
-            'is_featured' => 'boolean'
+            'is_featured' => 'boolean',
+            'category' => 'nullable|string'
         ]);
 
         $package->update($validated);
@@ -109,4 +111,24 @@ class PackageController extends Controller
         $package->delete();
         return response()->json(['message' => 'Package deleted']);
     }
+
+
+    public function categorizedPackages(): JsonResponse
+    {
+        $packages = Package::all()->groupBy('category');
+
+        return response()->json($packages);
+    }
+
+    public function getByCategory(string $category): JsonResponse
+{
+    $packages = Package::where('category', $category)->with('destination')->get();
+
+    if ($packages->isEmpty()) {
+        return response()->json(['message' => 'No packages found for this category'], 404);
+    }
+
+    return response()->json($packages);
+}
+
 }

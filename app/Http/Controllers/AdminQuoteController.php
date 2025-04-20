@@ -40,6 +40,7 @@ class AdminQuoteController extends Controller
             ? response()->json($quote)
             : response()->json(['message' => 'Quote not found'], 404);
     }
+
     public function respond(Request $request, $id)
     {
         $staff = Auth::guard('staff')->user();
@@ -76,7 +77,8 @@ class AdminQuoteController extends Controller
             'package_id' => $quote->package_id,
             'start_date' => $quote->start_date,
             'end_date' => $quote->end_date,
-            'number_of_people' => $quote->number_of_people,
+            'number_of_travelers' => $quote->number_of_people,
+            'total_price'=> $quote->estimated_price,
             'status' => 'pending',
             'quote_id' => $quote->id
         ]);
