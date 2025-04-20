@@ -16,6 +16,7 @@ use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\StaffDashboardController;
+use App\Http\Controllers\JobApplicationController;
 
 // ---------------------
 // Public Routes
@@ -30,6 +31,7 @@ Route::post('/staff/login', [StaffAuthController::class, 'login']);
 Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
+Route::post('/careers/apply', [JobApplicationController::class, 'store']);
 
 // ---------------------
 // Customer Routes
