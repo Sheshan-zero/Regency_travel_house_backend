@@ -32,6 +32,8 @@ Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
 Route::post('/careers/apply', [JobApplicationController::class, 'store']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+
 
 // ---------------------
 // Customer Routes

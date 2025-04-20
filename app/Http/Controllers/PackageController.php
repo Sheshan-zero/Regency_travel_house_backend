@@ -97,4 +97,33 @@ class PackageController extends Controller
         $package->delete();
         return response()->json(['message' => 'Package deleted']);
     }
+
+    public function smartSearch(Request $request)
+    {
+        $keyword = $request->input('q');
+
+        if (!$keyword) {
+            return response()->json(['message' => 'Please provide a search query.'], 400);
+        }
+
+        $keywords = explode(' ', $keyword);
+
+        $results = \App\Models\Package::with('destination')
+            ->where(function ($query) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $query->where(function ($subQuery) use ($word) {
+                        $subQuery->where('title', 'like', "%{$word}%")
+                                ->orWhere('category', 'like', "%{$word}%")
+                                ->orWhere('activities', 'like', "%{$word}%")
+                                ->orWhereHas('destination', function ($q) use ($word) {
+                                    $q->where('country', 'like', "%{$word}%");
+                                });
+                    });
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($results);
+    }
 }
