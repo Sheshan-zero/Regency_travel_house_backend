@@ -229,8 +229,6 @@ Route::middleware('auth:staff')->group(function () {
 
     // Admin Summary
     Route::get('/admin/summary', [AdminBookingController::class, 'summary']);
-
-    // Admin Bookings
     Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
     Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
     Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
@@ -275,17 +273,13 @@ Route::middleware('auth:staff')->group(function () {
     // Customers
     Route::get('/customer/all', [CustomerController::class, 'index']);
     Route::get('/customer/{customer}', [CustomerController::class, 'show']);
-    
     Route::put('/customer/{customer}', [CustomerAuthController::class, 'update']);
     Route::delete('/customer/{customer}', [CustomerAuthController::class, 'destroy']);
-
-
 
     Route::post('/itineraries', [ItineraryController::class, 'store']);
     Route::put('/itineraries/{id}', [ItineraryController::class, 'update']);
     Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
 
-    Route::post('/staff/register', [StaffAuthController::class, 'register']);
 
     Route::get('/dashboard/stats', [DashboardController::class, 'staffOverview']);
     Route::get('/dashboard/recent', [DashboardController::class, 'recentActivities']);
