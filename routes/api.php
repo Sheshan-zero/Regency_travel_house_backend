@@ -171,6 +171,8 @@ Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
 
+Route::get('/images/{id}', [ImageController::class, 'show']);
+
 /*Protected Routes - Customer (Sanctum)*/
 
 Route::middleware('auth:sanctum')->get('/booking/confirmed', [BookingController::class, 'confirmed']);
@@ -198,6 +200,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/bookings/{booking}', [BookingController::class, 'update']);
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy']);
     Route::get('/booking/confirmed', [BookingController::class, 'confirmed']);
+    Route::get('/booking/transactions', [BookingController::class, 'transactions']);
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index']);
     Route::post('/wishlist', [WishlistController::class, 'store']);
@@ -297,9 +300,8 @@ Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
     Route::delete('/staff/{id}', [StaffAuthController::class, 'destroy']);
 });
 
-// ---------------------
+
 // Admin-only Routes
-// ---------------------
 Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
     Route::post('/staff/register', [StaffAuthController::class, 'register']);
 
@@ -312,16 +314,15 @@ Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
 
     Route::get('/images', [ImageController::class, 'index']);
     Route::post('/images', [ImageController::class, 'store']);
-    Route::get('/images/{id}', [ImageController::class, 'show']);
+    // Route::get('/images/{id}', [ImageController::class, 'show']);
     Route::delete('/images/{id}', [ImageController::class, 'destroy']);
     // routes/api.php
-Route::post('/images/multiple', [ImageController::class, 'storeMultiple']);
-
+    Route::post('/images/multiple', [ImageController::class, 'storeMultiple']);
 });
 
-// ---------------------
+
 // Admin or Manager Routes
-// ---------------------
+
 Route::middleware(['auth:staff', 'staff.role:Admin,Manager'])->group(function () {
     Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
 
@@ -336,5 +337,4 @@ Route::middleware(['auth:staff', 'staff.role:Admin,Manager'])->group(function ()
     Route::get('/admin/customers/{id}', [CustomerAuthController::class, 'details']);   // View specific customer
     Route::get('/dashboard/stats', [StaffDashboardController::class, 'index']);
     Route::put('/admin/bookings/{id}/verify-payment', [AdminBookingController::class, 'verifyPaymentProof']);
-
 });

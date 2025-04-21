@@ -110,6 +110,20 @@ class BookingController extends Controller
 
         return response()->json($bookings);
     }
+
+    public function transactions(): JsonResponse
+    {
+        $user = Auth::user();
+
+        // You can adjust this based on whether it's Customer or Staff
+        $bookings = $user->bookings()
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->with('package') // if you want package info too
+            ->get();
+
+        return response()->json($bookings);
+    }
+    
     public function updateByCustomer(Request $request, $id): JsonResponse
     {
         $booking = Booking::find($id);
