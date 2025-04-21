@@ -121,14 +121,42 @@ class PackageController extends Controller
     }
 
     public function getByCategory(string $category): JsonResponse
-{
-    $packages = Package::where('category', $category)->with('destination')->get();
+    {
+        $packages = Package::where('category', $category)->with('destination')->get();
 
-    if ($packages->isEmpty()) {
-        return response()->json(['message' => 'No packages found for this category'], 404);
+        if ($packages->isEmpty()) {
+            return response()->json(['message' => 'No packages found for this category'], 404);
+        }
+
+        return response()->json($packages);
     }
 
-    return response()->json($packages);
-}
+    public function smartSearch(Request $request)
+    {
+        $keyword = $request->input('q');
 
+        if (!$keyword) {
+            return response()->json(['message' => 'Please provide a search query.'], 400);
+        }
+
+        $keywords = explode(' ', $keyword);
+
+        $results = \App\Models\Package::with('destination')
+            ->where(function ($query) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $query->where(function ($subQuery) use ($word) {
+                        $subQuery->where('title', 'like', "%{$word}%")
+                            ->orWhere('category', 'like', "%{$word}%")
+                            ->orWhere('activities', 'like', "%{$word}%")
+                            ->orWhereHas('destination', function ($q) use ($word) {
+                                $q->where('country', 'like', "%{$word}%");
+                            });
+                    });
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($results);
+    }
 }

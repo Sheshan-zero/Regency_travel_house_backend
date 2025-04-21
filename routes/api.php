@@ -130,6 +130,7 @@ use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\StaffDashboardController;
+use App\Http\Controllers\JobApplicationController;
 
 
 /*Public Routes*/
@@ -170,6 +171,9 @@ Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
+Route::post('/careers/apply', [JobApplicationController::class, 'store']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+
 
 Route::get('/images/{id}', [ImageController::class, 'show']);
 
