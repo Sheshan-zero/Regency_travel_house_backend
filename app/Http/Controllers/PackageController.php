@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Destination;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -122,10 +123,24 @@ class PackageController extends Controller
 
     public function getByCategory(string $category): JsonResponse
     {
-        $packages = Package::where('category', $category)->with('destination')->get();
+        $packages = Package::where('category', $category)->get();
 
         if ($packages->isEmpty()) {
             return response()->json(['message' => 'No packages found for this category'], 404);
+        }
+        return response()->json($packages);
+    }
+
+    public function getByCountry(string $country): JsonResponse
+    {
+        $packages = Package::whereHas('destination', function ($query) use ($country) {
+            $query->where('country', $country);
+        })
+            ->with('destination')
+            ->get();
+
+        if ($packages->isEmpty()) {
+            return response()->json(['message' => 'No packages found for this country'], 404);
         }
 
         return response()->json($packages);

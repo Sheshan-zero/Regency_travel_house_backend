@@ -19,7 +19,7 @@ class JobApplicationController extends Controller
             'phone' => 'nullable|string|max:20',
             'position_applied' => 'required|string|max:255',
             'cover_letter' => 'nullable|string',
-            'cv' => 'required|mimes:pdf,doc,docx|max:2048'
+            'cv' => 'required|mimes:pdf,doc,docx|max:2048'      
         ]);
 
         // Store the uploaded CV file

@@ -144,9 +144,7 @@ Route::post('/staff/login', [StaffAuthController::class, 'login']);
 //Customer Registration by them
 Route::post('/customers/register', [CustomerController::class, 'register']);
 Route::post('/customers/login', [CustomerController::class, 'login']);
-Route::get('/all-packages-itineraries', [ItineraryController::class, 'allWithItineraries']);
 
-Route::get('/destinations/{id}/images', [ImageController::class, 'getImagesByDestination']);
 Route::get('/packages/categorized', [PackageController::class, 'categorizedPackages']);
 Route::get('/packages/category/{category}', [PackageController::class, 'getByCategory']);
 
@@ -175,7 +173,6 @@ Route::post('/careers/apply', [JobApplicationController::class, 'store']);
 Route::get('/packages/search', [PackageController::class, 'smartSearch']);
 
 
-Route::get('/images/{id}', [ImageController::class, 'show']);
 
 /*Protected Routes - Customer (Sanctum)*/
 
