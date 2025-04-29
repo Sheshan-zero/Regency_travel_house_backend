@@ -23,7 +23,7 @@ class JobApplicationAdminNotification extends Mailable
     public function build()
     {
         return $this->subject('New Job Application Received')
-                    ->markdown('emails.jobs.admin')
-                    ->attach(storage_path('app/public/' . $this->application->cv_path));
+                    ->markdown('emails.admiNotify');
+                    // ->attach(storage_path('app/public' . $this->application->cv_path));
     }
 }

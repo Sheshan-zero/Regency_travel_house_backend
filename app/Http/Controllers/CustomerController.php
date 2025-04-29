@@ -10,10 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 // use Carbon\Carbon;
 
-
 class CustomerController extends Controller
 {
-
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -25,6 +23,7 @@ class CustomerController extends Controller
             'country_of_residence' => 'nullable|string',
             'nic' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
+            'per_for_news'=> 'nullable|boolean',
         ]);
 
         $customer = Customer::create([
@@ -36,6 +35,7 @@ class CustomerController extends Controller
             'country_of_residence' => $validated['country_of_residence'] ?? null,
             'nic' => $validated['nic'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,
+            'per_for_news'=>  $validated['per_for_news'] ?? null, 
         ]);
 
         $token = $customer->createToken('customer_token')->plainTextToken;

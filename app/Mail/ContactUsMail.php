@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -12,45 +11,38 @@ class ContactUsMail extends Mailable
     use Queueable, SerializesModels;
 
     public $firstName;
+    public $full_name;
     public $lastName;
     public $email;
-    public $subject;
-    public $message;
+    public $subjectText;
+    public $messageText;
 
     /**
      * Create a new message instance.
-     *
-     * @param string $firstName
-     * @param string $lastName
-     * @param string $email
-     * @param string $subject
-     * @param string $message
-     * @return void
      */
-    public function __construct($firstName, $lastName, $email, $subject, $message)
+    public function __construct($full_name, $lastName, $email, $subjectText, $messageText)
     {
-        $this->firstName = $firstName;
+        $this->full_name = $full_name;
         $this->lastName = $lastName;
         $this->email = $email;
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->subjectText = $subjectText;
+        $this->messageText = $messageText;
     }
 
     /**
      * Build the message.
-     *
-     * @return \Illuminate\Mail\Mailable
      */
     public function build()
     {
-        return $this->view('emails.contact_us')  // You can create a Blade view for the email content.
+        return $this->subject('New Contact Us Message')
+                    ->view('emails.contact_us') // Blade template path
                     ->with([
-                        'firstName' => $this->firstName,
+                        'full_name' => $this->full_name,
                         'lastName' => $this->lastName,
                         'email' => $this->email,
-                        'subject' => $this->subject,
-                        'message' => $this->message,
-                    ])
-                    ->subject('New Contact Us Message');
+                        'subjectText' => $this->subjectText,
+                        'messageText' => $this->messageText,  // <- changed key here
+                    ]);
+                    
     }
 }

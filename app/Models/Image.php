@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Image extends Model
 {
-    protected $fillable = ['filename', 'section', 'package_id','destination_id'];
+    protected $fillable = ['filename', 'section', 'package_id','destination_id','booking_id'];
 
     public function package()
     {
@@ -16,6 +16,11 @@ class Image extends Model
     public function destination()
     {
         return $this->belongsTo(Destination::class);
+    }
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
     }
 }
 

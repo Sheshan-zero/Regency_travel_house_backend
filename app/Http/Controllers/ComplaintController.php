@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactUsMail;
 use App\Models\Complaint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ComplaintController extends Controller
 {
@@ -36,6 +38,18 @@ class ComplaintController extends Controller
             'status' => 'in progress',
             'submitted_at' => now(),
         ]);
+
+        $user = Auth::user(); // Get the logged-in customer
+
+        Mail::to('support@regencytravel.com')->send(
+            new ContactUsMail(
+                $user->full_name,
+                $user->last_name,
+                $user->email,
+                $validated['subject'],
+                $validated['message']
+            )
+        );
 
         return response()->json(['message' => 'Complaint submitted successfully', 'complaint' => $complaint], 201);
     }

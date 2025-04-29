@@ -137,7 +137,10 @@ use App\Http\Controllers\JobApplicationController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
+Route::post('/staff/login', [StaffAuthController::class, 'login']);
 Route::post('/staff/login', [StaffAuthController::class, 'login']);
 // Route::post('/staff/register', [StaffAuthController::class, 'register']);
 
@@ -147,30 +150,31 @@ Route::post('/customers/login', [CustomerController::class, 'login']);
 
 Route::get('/packages/categorized', [PackageController::class, 'categorizedPackages']);
 Route::get('/packages/category/{category}', [PackageController::class, 'getByCategory']);
-
-
-// Public Routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/packages/country/{country}', [PackageController::class, 'getByCountry']);
+Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/packages/country/{country}', [PackageController::class, 'getByCountry']);
 Route::get('/packages', [PackageController::class, 'index']);
 Route::get('/packages/{id}', [PackageController::class, 'show']);
+
 Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);
-Route::post('/staff/login', [StaffAuthController::class, 'login']);
+Route::get('/destinations', [DestinationController::class, 'index']);
+Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 
 //Customer Registration by Admins
 Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 
-Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
-
-Route::get('/destinations', [DestinationController::class, 'index']);
-Route::get('/destinations/{id}', [DestinationController::class, 'show']);
-
+Route::get('/all-packages-itineraries', [ItineraryController::class, 'allWithItineraries']);
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
+
 Route::post('/careers/apply', [JobApplicationController::class, 'store']);
-Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+
+Route::get('/destinations/{id}/images', [ImageController::class, 'getImagesByDestination']);
+Route::get('/images/{id}', [ImageController::class, 'show']);
+Route::get('/packages/{id}/images', [ImageController::class, 'getImagesByPackage']);
 
 
 
@@ -182,19 +186,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
     // Customer Profile & Loyalty
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::get('/bookings/{id}', [BookingController::class, 'show']);
     Route::post('/bookings', [BookingController::class, 'store']);
     Route::put('/bookings/{id}/customer-update', [BookingController::class, 'updateByCustomer']);
-
-    Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
-    Route::put('/customer/profile', [CustomerController::class, 'profile']);
-    Route::post('/customer/logout', [CustomerAuthController::class, 'logout']);
-    Route::get('/customer/loyalty-summary', [CustomerController::class, 'loyaltySummary']);
-    Route::get('/customer/loyalty', [CustomerAuthController::class, 'loyaltyPoints']);
-    Route::get('/customer/loyalty/history', [CustomerAuthController::class, 'loyaltyHistory']);
-    // Bookings
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
@@ -202,17 +199,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy']);
     Route::get('/booking/confirmed', [BookingController::class, 'confirmed']);
     Route::get('/booking/transactions', [BookingController::class, 'transactions']);
-    // Wishlist
-    Route::get('/wishlist', [WishlistController::class, 'index']);
-    Route::post('/wishlist', [WishlistController::class, 'store']);
-    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
-    // Customers (for Admin view or Super Users)
+
+    Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
+    Route::post('/customer/logout', [CustomerAuthController::class, 'logout']);
+    Route::get('/customer/loyalty', [CustomerAuthController::class, 'loyaltyPoints']);
+    Route::get('/customer/loyalty/history', [CustomerAuthController::class, 'loyaltyHistory']);
+
+    Route::put('/customer/profile', [CustomerController::class, 'profile']);
+    Route::get('/customer/loyalty-summary', [CustomerController::class, 'loyaltySummary']);
     Route::post('/customers/logout', [CustomerController::class, 'logout']);
     Route::get('/customers', [CustomerController::class, 'index']);
     Route::get('/customers/{customer}', [CustomerController::class, 'show']);
     Route::put('/customers/{customer}', [CustomerController::class, 'update']);
     // Route::delete('/customers/{customer}', [CustomerController::class, 'destroy']);
 
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist', [WishlistController::class, 'store']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
+    // Customers (for Admin view or Super Users)
+    
     // Complaints
     Route::get('/complaints', [ComplaintController::class, 'index']);
     Route::post('/complaints', [ComplaintController::class, 'store']);
@@ -221,6 +226,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy']);
 
     Route::post('/quotes', [QuoteController::class, 'store']);
+    // Route::put('/loyalty/{id}/donate', [LoyaltyController::class, 'donatePoints']);
+    
+    // Route::post('/loyalty/{id}/donate', [LoyaltyController::class, 'donatePoints']);
+    
+    Route::post('/loyalty/donate', [LoyaltyController::class, 'donatePoints']);
 });
 
 //  Protected Routes - Staff
@@ -235,12 +245,7 @@ Route::middleware('auth:staff')->group(function () {
     Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
     Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
     Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
-
-    // Packages
-
-    // Route::get('/wishlist', [WishlistController::class, 'index']);
-    // Route::post('/wishlist', [WishlistController::class, 'store']);
-    // Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
+    Route::post('/staff/bookings', [AdminBookingController::class, 'storeByStaff']);
 
     Route::get('/customer/loyalty', [CustomerAuthController::class, 'loyaltyPoints']);
     Route::get('/customer/loyalty/history', [CustomerAuthController::class, 'loyaltyHistory']);
@@ -274,16 +279,16 @@ Route::middleware('auth:staff')->group(function () {
     Route::post('/itineraries', [ItineraryController::class, 'store']);
     Route::put('/itineraries/{id}', [ItineraryController::class, 'update']);
     Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
+    Route::post('/itineraries', [ItineraryController::class, 'store']);
+    Route::put('/itineraries/{id}', [ItineraryController::class, 'update']);
+    Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
+
 
     // Customers
     Route::get('/customer/all', [CustomerController::class, 'index']);
     Route::get('/customer/{customer}', [CustomerController::class, 'show']);
     Route::put('/customer/{customer}', [CustomerAuthController::class, 'update']);
     Route::delete('/customer/{customer}', [CustomerAuthController::class, 'destroy']);
-
-    Route::post('/itineraries', [ItineraryController::class, 'store']);
-    Route::put('/itineraries/{id}', [ItineraryController::class, 'update']);
-    Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
 
 
     Route::get('/dashboard/stats', [DashboardController::class, 'staffOverview']);
@@ -317,7 +322,6 @@ Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
     Route::post('/images', [ImageController::class, 'store']);
     // Route::get('/images/{id}', [ImageController::class, 'show']);
     Route::delete('/images/{id}', [ImageController::class, 'destroy']);
-    // routes/api.php
     Route::post('/images/multiple', [ImageController::class, 'storeMultiple']);
 });
 
@@ -330,8 +334,8 @@ Route::middleware(['auth:staff', 'staff.role:Admin,Manager'])->group(function ()
     // Loyalty Point Management
     Route::get('/loyalty/customers', [LoyaltyController::class, 'index']);             // List all customers with loyalty
     Route::get('/loyalty/customers/{id}', [LoyaltyController::class, 'show']);         // View one customer's loyalty
-    Route::put('/loyalty/customers/{id}/update', [LoyaltyController::class, 'update']); // Update points
-    Route::post('/loyalty/customers/{id}/add', [LoyaltyController::class, 'addPoints']); // Add extra points
+    Route::put('/loyalty/customers/{id}/update', [LoyaltyController::class, 'updateByAdmin']); // Update points
+    // Route::post('/loyalty/customers/{id}/add', [LoyaltyController::class, 'addPoints']); // Add extra points
 
     // Customer Profiles
     Route::get('/admin/customers', [CustomerAuthController::class, 'all']);            // List all customers

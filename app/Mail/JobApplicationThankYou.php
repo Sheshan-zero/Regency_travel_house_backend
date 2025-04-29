@@ -24,6 +24,6 @@ class JobApplicationThankYou extends Mailable
     public function build()
     {
         return $this->subject('Thank You for Your Application')
-                    ->markdown('emails.jobs.thankyou');
+                    ->markdown('emails.thankyou');
     }
 }
