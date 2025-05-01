@@ -52,7 +52,7 @@ class AdminBookingController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $booking = Booking::with('customer')->find($id);
+        $booking = Booking::with(['customer', 'package'])->find($id);
         if (!$booking) {
             return response()->json(['message' => 'Booking not found'], 404);
         }
@@ -86,7 +86,14 @@ class AdminBookingController extends Controller
             $pointsEarned = $booking->total_price * 0.1;
 
             $customer->notify(new BookingConfirmed($booking));
-            $customer->increment('loyalty_points', $pointsEarned);
+        // $booking->update($request->only(['status', 'payment_reference']));
+
+        // // Loyalty Points if newly confirmed
+        // if ($request->status === 'confirmed' && $oldStatus !== 'confirmed') {
+        //     $customer = $booking->customer;
+        //     $pointsEarned = $booking->total_price * 0.1;
+
+        //     $customer->increment('loyalty_points', $pointsEarned);
 
             Loyalty::create([
                 'customer_id' => $customer->id,
@@ -94,6 +101,17 @@ class AdminBookingController extends Controller
                 'points_redeemed' => 0,
                 'last_updated' => now()
             ]);
+
+            // Send confirmation email
+            $customer->notify(new \App\Notifications\BookingConfirmed($booking));
+        }
+
+        // Send booking update notifications
+        $booking->customer->notify(new \App\Notifications\BookingUpdatedNotification($booking));
+
+        $admins = \App\Models\Staff::whereIn('role', ['Admin', 'Manager'])->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\BookingUpdatedNotification($booking));
         }
 
         return response()->json([

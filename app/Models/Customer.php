@@ -7,13 +7,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\CustomerResetPasswordNotification;
 
 class Customer extends Authenticatable
 {
 
     use HasApiTokens, HasFactory, Notifiable;
-    protected $fillable = ['full_name', 'email', 'password', 'phone', 'address', 'country_of_residence', 'nic', 'date_of_birth', 'loyalty_points', 'per_for_news','per_for_loyalty','per_for_privacy'];
+    protected $fillable = ['full_name', 'email', 'password', 'phone', 'address', 'country_of_residence', 'nic', 'date_of_birth', 'loyalty_points', 'per_for_news', 'per_for_loyalty', 'per_for_privacy'];
 
     protected $hidden = ['password'];
 
@@ -47,8 +48,11 @@ class Customer extends Authenticatable
     }
 
     public function loyalty()
-{
-    return $this->hasOne(Loyalty::class);
-}
-
+    {
+        return $this->hasOne(Loyalty::class);
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomerResetPasswordNotification($token));
+    }
 }

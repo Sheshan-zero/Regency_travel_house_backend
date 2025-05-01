@@ -19,6 +19,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\JobApplicationController;
+use App\Http\Controllers\Auth\StaffPasswordResetController;
+use App\Http\Controllers\Auth\CustomerPasswordResetController;
+
 
 
 /*Public Routes*/
@@ -46,6 +49,7 @@ Route::get('/packages/search', [PackageController::class, 'smartSearch']);
 Route::get('/packages/{id}', [PackageController::class, 'show']);
 Route::get('/packages/country/{country}', [PackageController::class, 'getByCountry']);
 Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
 Route::get('/packages/{id}', [PackageController::class, 'show']);
 
 Route::get('/destinations', [DestinationController::class, 'index']);
@@ -65,6 +69,11 @@ Route::post('/careers/apply', [JobApplicationController::class, 'store']);
 Route::get('/destinations/{id}/images', [ImageController::class, 'getImagesByDestination']);
 Route::get('/images/{id}', [ImageController::class, 'show']);
 Route::get('/packages/{id}/images', [ImageController::class, 'getImagesByPackage']);
+Route::post('/staff/forgot-password', [StaffPasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('/staff/reset-password', [StaffPasswordResetController::class, 'reset']);
+Route::post('/customer/forgot-password', [CustomerPasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('/customer/reset-password', [CustomerPasswordResetController::class, 'reset']);
+
 
 
 
@@ -149,6 +158,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index']); //done
     Route::post('/wishlist', [WishlistController::class, 'store']);
     Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
+    Route::post('/quotes', [QuoteController::class, 'store']);
+
+    Route::get('/customer/notifications', [CustomerAuthController::class, 'notifications']);
+
 });
 
 // Shared Staff Routes

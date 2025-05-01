@@ -210,4 +210,10 @@ class CustomerAuthController extends Controller
         }
         return response()->json($newslatter);
     }
+    public function notifications(Request $request)
+    {
+        $user = $request->user();
+        return response()->json($user->notifications()->latest()->get());
+    }
+
 }
