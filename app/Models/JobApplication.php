@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobApplication extends Model
 {
-    //
+    protected $fillable = [
+        'full_name',
+        'email',
+        'phone',
+        'position_applied',
+        'cover_letter',
+        'cv_path',
+    ];
+
 }

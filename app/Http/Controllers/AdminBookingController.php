@@ -44,11 +44,11 @@ class AdminBookingController extends Controller
     {
         $staff = Auth::guard('staff')->user();
 
-        if ($staff->role !== 'Admin' && $staff->role !== 'manager') {
+        if (!in_array($staff->role, ['Admin', 'manager'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $booking = Booking::with('customer')->find($id);
+        $booking = Booking::with(['customer', 'package'])->find($id);
         if (!$booking) {
             return response()->json(['message' => 'Booking not found'], 404);
         }
@@ -58,28 +58,34 @@ class AdminBookingController extends Controller
             'payment_reference' => 'nullable|string|max:255'
         ]);
 
-        // Store current status before update
         $oldStatus = $booking->status;
 
-        // Update the booking
         $booking->update($request->only(['status', 'payment_reference']));
 
-        //  Loyalty Points Logic
+        // Loyalty Points if newly confirmed
         if ($request->status === 'confirmed' && $oldStatus !== 'confirmed') {
             $customer = $booking->customer;
             $pointsEarned = $booking->total_price * 0.1;
 
-            $booking->customer->notify(new BookingConfirmed($booking));
-            // Add points to customer's total
             $customer->increment('loyalty_points', $pointsEarned);
 
-            // Log the transaction in loyalty history
             Loyalty::create([
                 'customer_id' => $customer->id,
                 'points_earned' => $pointsEarned,
                 'points_redeemed' => 0,
                 'last_updated' => now()
             ]);
+
+            // Send confirmation email
+            $customer->notify(new \App\Notifications\BookingConfirmed($booking));
+        }
+
+        // Send booking update notifications
+        $booking->customer->notify(new \App\Notifications\BookingUpdatedNotification($booking));
+
+        $admins = \App\Models\Staff::whereIn('role', ['Admin', 'Manager'])->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\BookingUpdatedNotification($booking));
         }
 
         return response()->json([
@@ -87,6 +93,7 @@ class AdminBookingController extends Controller
             'booking' => $booking->fresh(['customer', 'package'])
         ]);
     }
+
 
     public function verifyPaymentProof(Request $request, int $id): JsonResponse
     {

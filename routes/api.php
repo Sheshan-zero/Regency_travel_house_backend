@@ -17,6 +17,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\JobApplicationController;
+use App\Http\Controllers\Auth\StaffPasswordResetController;
+use App\Http\Controllers\Auth\CustomerPasswordResetController;
+
 
 // ---------------------
 // Public Routes
@@ -24,6 +27,7 @@ use App\Http\Controllers\JobApplicationController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
 Route::get('/packages/{id}', [PackageController::class, 'show']);
 Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);
@@ -32,7 +36,11 @@ Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
 Route::post('/careers/apply', [JobApplicationController::class, 'store']);
-Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+Route::post('/staff/forgot-password', [StaffPasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('/staff/reset-password', [StaffPasswordResetController::class, 'reset']);
+Route::post('/customer/forgot-password', [CustomerPasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('/customer/reset-password', [CustomerPasswordResetController::class, 'reset']);
+
 
 
 // ---------------------
@@ -59,6 +67,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/quotes', [QuoteController::class, 'index']);
     Route::post('/quotes', [QuoteController::class, 'store']);
+
+    Route::get('/customer/notifications', [CustomerAuthController::class, 'notifications']);
+
 });
 
 // ---------------------

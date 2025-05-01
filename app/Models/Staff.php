@@ -7,6 +7,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\StaffResetPasswordNotification;
+
 
 class Staff extends Authenticatable implements CanResetPassword
 {
@@ -34,5 +37,10 @@ class Staff extends Authenticatable implements CanResetPassword
     public function quotes()
     {
         return $this->hasMany(Quote::class, 'responded_by');
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new StaffResetPasswordNotification($token));
     }
 }
