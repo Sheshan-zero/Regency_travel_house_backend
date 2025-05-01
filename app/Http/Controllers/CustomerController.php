@@ -24,6 +24,8 @@ class CustomerController extends Controller
             'nic' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
             'per_for_news'=> 'nullable|boolean',
+            'per_for_loyalty'=> 'nullable|boolean',
+            'per_for_privacy'=> 'nullable|boolean',
         ]);
 
         $customer = Customer::create([
@@ -36,6 +38,8 @@ class CustomerController extends Controller
             'nic' => $validated['nic'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,
             'per_for_news'=>  $validated['per_for_news'] ?? null, 
+            'per_for_loyalty'=>  $validated['per_for_loyalty'] ?? null, 
+            'per_for_privacy'=>  $validated['per_for_privacy'] ?? null, 
         ]);
 
         $token = $customer->createToken('customer_token')->plainTextToken;
@@ -79,8 +83,9 @@ class CustomerController extends Controller
     {
         $customers = Customer::with('loyalty')
             ->withCount('bookings')
-            ->withSum('loyaltyHistory as earned_points', 'points_earned')
+            // ->withSum('loyaltyHistory as earned_points', 'points_earned')
             ->withSum('loyaltyHistory as redeemed_points', 'points_redeemed')
+            ->withSum('loyaltyHistory as donate', 'donate')
             ->get();
 
         return response()->json($customers);
@@ -97,6 +102,8 @@ class CustomerController extends Controller
             'country_of_residence' => $customer->country_of_residence,
             'date_of_birth' => $customer->date_of_birth,
             'bookings_count' => $customer->bookings()->count(),
+            'tier' => $customer->tier ?? 0,
+            'loyalty_points' => $customer->loyalty_points,
             'loyalty' => [
                 'earned_points' => $customer->loyalty->earned_points ?? 0,
                 'redeemed_points' => $customer->loyalty->redeemed_points ?? 0,
@@ -149,21 +156,25 @@ class CustomerController extends Controller
         $totalRedeemed = $customer->loyaltyHistory()
             ->sum('points_redeemed');
 
-        $availablePoints = $validEarned - $totalRedeemed;
+        $totalDonate = $customer->loyaltyHistory()
+            ->sum('donate');
 
+        $availablePoints = $validEarned - $totalRedeemed - $totalDonate;
 
         $tier = 'Bronze';
-        if ($validEarned >= 1000) {
+        if ($customer->loyalty_points >= 1000) {
             $tier = 'Gold';
-        } elseif ($validEarned >= 500) {
+        } elseif ($customer->loyalty_points >= 500) {
             $tier = 'Silver';
         }
 
         return response()->json([
             'customer_id' => $customer->id,
-            'available_points' => round($availablePoints, 2),
-            'valid_earned' => round($validEarned, 2),
-            'total_redeemed' => round($totalRedeemed, 2),
+            'loyalty_points' => $customer->loyalty_points,
+            'available_points' => $availablePoints,
+            'valid_earned' => $validEarned, 
+            'total_redeemed' => $totalRedeemed,
+            'donate'=> $totalDonate,
             'tier' => $tier,
             'history' => $customer->loyaltyHistory()
                 ->orderBy('last_updated', 'desc')
@@ -175,8 +186,12 @@ class CustomerController extends Controller
                         'date' => date('Y-m-d', strtotime($record->last_updated)),
                         'expired' => $record->isExpired(),
                         'membership_tier' => $record->tier,
+                        'donate'=> $record->donate,
+
                     ];
                 })
         ]);
     }
+
+
 }

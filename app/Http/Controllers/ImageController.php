@@ -14,72 +14,6 @@ class ImageController extends Controller
         return response()->json(Image::with('package')->get());
     }
 
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'image' => 'required|image|max:2048',
-    //         'section' => 'nullable|string',
-    //         'package_id' => 'nullable|exists:packages,id',
-    //         'destination_id' => 'nullable|exists:destinations,id'
-    //     ]);
-
-    //     $file = $request->file('image');
-    //     $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-    //     $file->storeAs('public/images', $filename);
-
-    //     $section = $request->section;
-    //     if (!$section) {
-    //         if ($request->has('destination_id')) {
-    //             $section = 'hero';
-    //         } elseif ($request->has('package_id')) {
-    //             $section = 'gallery';
-    //         }
-    //     }
-
-    //     $image = Image::create([
-    //         'filename' => $filename,
-    //         'section' => $section,
-    //         'package_id' => $request->package_id,
-    //         'destination_id' => $request->destination_id,
-    //     ]);
-
-    //     return response()->json(['message' => 'Image uploaded successfully', 'image' => $image]);
-    // }
-
-    //     public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'image' => 'required|image|max:2048',
-    //         'section' => 'nullable|string',
-    //         'package_id' => 'nullable|exists:packages,id',
-    //         'destination_id' => 'nullable|exists:destinations,id'
-    //     ]);
-
-    //     $file = $request->file('image');
-
-    //     // ✅ THIS IS THE CORRECT PATH
-    //     $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-    //     $file->storeAs('public/images', $filename);
-
-    //     // Automatically assign section if not provided
-    //     $section = $request->section;
-    //     if (!$section) {
-    //         if ($request->has('destination_id')) {
-    //             $section = 'hero';
-    //         } elseif ($request->has('package_id')) {
-    //             $section = 'gallery';
-    //         }
-    //     }
-
-    //     $image = Image::create([
-    //         'filename' => $filename,
-    //         'section' => $section,
-    //         'package_id' => $request->package_id,
-    //         'destination_id' => $request->destination_id,
-    //     ]);
-
-    //     return response()->json(['message' => 'Image uploaded successfully', 'image' => $image]);
-    // }
 
     public function store(Request $request)
     {
@@ -102,8 +36,8 @@ class ImageController extends Controller
                 $section = 'hero';
             } elseif ($request->has('package_id')) {
                 $section = 'gallery';
-            // } elseif ($request->has('booking_id')) {
-            //     $section = 'recipt';
+            } elseif ($request->has('booking_id')) {
+                $section = 'recipt';
             }
         }
 
@@ -112,7 +46,7 @@ class ImageController extends Controller
             'section' => $section,
             'package_id' => $request->package_id,
             'destination_id' => $request->destination_id,
-            // 'booking_id' => $request->booking_id,
+            'booking_id' => $request->booking_id,
         ]);
 
         return response()->json([
@@ -120,44 +54,6 @@ class ImageController extends Controller
             'image' => $image
         ]);
     }
-
-
-
-    //     public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'images.*' => 'required|image|max:2048',
-    //         'section' => 'nullable|string',
-    //         'package_id' => 'nullable|exists:packages,id',
-    //         'destination_id' => 'nullable|exists:destinations,id'
-    //     ]);
-
-    //     $uploadedImages = [];
-
-    //     foreach ($request->file('images') as $file) {
-    //         $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-    //         $file->storeAs('public/images', $filename);
-
-    //         $section = $request->section;
-    //         if (!$section && $request->has('destination_id')) $section = 'hero';
-    //         if (!$section && $request->has('package_id')) $section = 'gallery';
-
-    //         $image = Image::create([
-    //             'filename' => $filename,
-    //             'section' => $section,
-    //             'package_id' => $request->package_id,
-    //             'destination_id' => $request->destination_id,
-    //         ]);
-
-    //         $uploadedImages[] = $image;
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Images uploaded successfully',
-    //         'images' => $uploadedImages
-    //     ]);
-    // }
-
 
     // In ImageController
     public function storeMultiple(Request $request)

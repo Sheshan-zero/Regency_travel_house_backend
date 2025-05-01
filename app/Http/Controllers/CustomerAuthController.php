@@ -45,7 +45,7 @@ class CustomerAuthController extends Controller
             'country_of_residence' => 'nullable|string',
             'nic' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
-            'per_for_news'=> 'nullable|boolean',
+            'per_for_news' => 'nullable|boolean',
         ]);
 
         $customer = Customer::create([
@@ -57,7 +57,7 @@ class CustomerAuthController extends Controller
             'country_of_residence' => $validated['country_of_residence'] ?? null,
             'nic' => $validated['nic'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,
-            'per_for_news'=>  $validated['per_for_news'] ?? null, 
+            'per_for_news' =>  $validated['per_for_news'] ?? null,
         ]);
 
         $token = $customer->createToken('customer_token')->plainTextToken;
@@ -95,35 +95,35 @@ class CustomerAuthController extends Controller
     // }
 
     public function update(Request $request, Customer $customer): JsonResponse
-{
-    $staff = Auth::guard('staff')->user(); // get logged-in staff user
+    {
+        $staff = Auth::guard('staff')->user(); // get logged-in staff user
 
-    if (!$staff || !in_array($staff->role, ['Admin', 'Manager'])) {
-        return response()->json(['error' => 'Unauthorized'], 403);
+        if (!$staff || !in_array($staff->role, ['Admin', 'Manager'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'full_name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:15',
+            'address' => 'nullable|string',
+            'country_of_residence' => 'nullable|string',
+            'nic' => 'nullable|string',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string|in:Male,Female,Prefer not to say',
+        ]);
+
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']); // prevent updating with null password
+        }
+
+        $customer->update($validated);
+
+        return response()->json($customer);
     }
-
-    $validated = $request->validate([
-        'full_name' => 'sometimes|string|max:255',
-        'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
-        'password' => 'nullable|string|min:8|confirmed',
-        'phone' => 'nullable|string|max:15',
-        'address' => 'nullable|string',
-        'country_of_residence' => 'nullable|string',
-        'nic' => 'nullable|string',
-        'date_of_birth' => 'nullable|date',
-        'gender' => 'nullable|string|in:Male,Female,Prefer not to say',
-    ]);
-
-    if (isset($validated['password'])) {
-        $validated['password'] = Hash::make($validated['password']);
-    } else {
-        unset($validated['password']); // prevent updating with null password
-    }
-
-    $customer->update($validated);
-
-    return response()->json($customer);
-}
 
 
     public function destroy(Customer $customer)
@@ -201,4 +201,13 @@ class CustomerAuthController extends Controller
         return response()->json($customer);
     }
 
+    public function getNewslatterusers()
+    {
+        $newslatter = Customer::where('per_for_news', true)->get();
+
+        if ($newslatter->isEmpty()) {
+            return response()->json(['message' => 'No packages found for this category'], 404);
+        }
+        return response()->json($newslatter);
+    }
 }

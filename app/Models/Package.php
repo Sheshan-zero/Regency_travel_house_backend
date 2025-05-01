@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Package extends Model
 {
-    protected $fillable = ['destination_id', 'title', 'country','description','activities','include','exclude', 'price_per_person', 'duration_days', 'start_date', 'end_date', 'available_slots', 'image_url', 'is_featured','category','footprint'];
+    protected $fillable = ['destination_id', 'title','special_package', 'country','description','activities','include','exclude', 'price_per_person', 'duration_days', 'start_date', 'end_date', 'available_slots', 'image_url', 'is_featured','category','footprint'];
 
     public function destination()
     {

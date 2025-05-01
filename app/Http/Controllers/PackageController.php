@@ -42,25 +42,16 @@ class PackageController extends Controller
             'image_url' => 'nullable|url',
             'is_featured' => 'boolean',
             'category' => 'nullable|string',
-            'footprint' => 'sometimes|integer|min:1'
+            'footprint' => 'sometimes|integer|min:1',
+            'special_package' => 'nullable|boolean',
         ]);
 
         $package = Package::create($validated);
         return response()->json($package, 201);
     }
 
-    // public function show(int $id): JsonResponse
-    // {
-    //     $package = Package::with('destination')->find($id);
-    //     if (!$package) {
-    //         return response()->json(['message' => 'Package not found'], 404);
-    //     }
-    //     return response()->json($package);
-    // }
-
     public function show(int $id): JsonResponse
     {
-        // $id = (int) $id;
         $package = Package::with(['destination', 'itineraries'])->find($id);
         if (!$package) {
             return response()->json(['message' => 'Package not found'], 404);
@@ -94,7 +85,8 @@ class PackageController extends Controller
             'image_url' => 'nullable|url',
             'is_featured' => 'boolean',
             'category' => 'nullable|string',
-            'footprint' => 'sometimes|integer|min:1'
+            'footprint' => 'sometimes|integer|min:1',
+            'special_package' => 'boolean',
         ]);
 
         $package->update($validated);
@@ -149,62 +141,55 @@ class PackageController extends Controller
         return response()->json($packages);
     }
 
-    // public function smartSearch(Request $request)
-    // {
-    //     $keyword = $request->input('q');
-
-    //     if (!$keyword) {
-    //         return response()->json(['message' => 'Please provide a search query.'], 400);
-    //     }
-
-    //     $keywords = explode(' ', $keyword);
-
-    //     $results = \App\Models\Package::with('destination')
-    //         ->where(function ($query) use ($keywords) {
-    //             foreach ($keywords as $word) {
-    //                 $query->where(function ($subQuery) use ($word) {
-    //                     $subQuery->where('title', 'like', "%{$word}%")
-    //                         ->orWhere('category', 'like', "%{$word}%")
-    //                         ->orWhere('activities', 'like', "%{$word}%")
-    //                         ->orWhereHas('destination', function ($q) use ($word) {
-    //                             $q->where('country', 'like', "%{$word}%");
-    //                         });
-    //                 });
-    //             }
-    //         })
-    //         ->orderBy('created_at', 'desc')
-    //         ->get();
-
-    //     return response()->json($results);
-    // }
-
-    public function smartSearch(Request $request)
-{
-    $keyword = $request->input('q');
-
-    if (!$keyword) {
-        return response()->json(['message' => 'Please provide a search query.'], 400);
+    public function getByRegion(string $region): JsonResponse
+    {
+        $packages = Package::whereHas('destination', function ($query) use ($region) {
+            $query->where('region', $region);
+        })
+            ->with('destination')
+            ->get();
+        if ($packages->isEmpty()) {
+            return response()->json(['message' => 'No packages found for this region'], 404);
+        }
+        return response()->json($packages);
     }
 
-    $keywords = explode(' ', $keyword);
+    public function getBySpecialPackage(): JsonResponse
+    {
+        $packages = Package::where('special_package',true)->get();
 
-    $results = \App\Models\Package::with('destination')
-        ->where(function ($query) use ($keywords) {
-            foreach ($keywords as $word) {
-                $query->orWhere(function ($subQuery) use ($word) {
-                    $subQuery->where('title', 'like', "%{$word}%")
-                        ->orWhere('category', 'like', "%{$word}%")
-                        ->orWhere('activities', 'like', "%{$word}%")
-                        ->orWhereHas('destination', function ($q) use ($word) {
-                            $q->where('country', 'like', "%{$word}%");
-                        });
-                });
-            }
-        })
-        ->orderBy('created_at', 'desc')
-        ->get();
-    
-    return response()->json($results);
-}
+        if ($packages->isEmpty()) {
+            return response()->json(['message' => 'No packages found for special packages'], 404);
+        }
+        return response()->json($packages);
+    }
 
+    public function smartSearch(Request $request)
+    {
+        $keyword = $request->input('q');
+
+        if (!$keyword) {
+            return response()->json(['message' => 'Please provide a search query.'], 400);
+        }
+
+        $keywords = explode(' ', $keyword);
+
+        $results = \App\Models\Package::with('destination')
+            ->where(function ($query) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $query->orWhere(function ($subQuery) use ($word) {
+                        $subQuery->where('title', 'like', "%{$word}%")
+                            ->orWhere('category', 'like', "%{$word}%")
+                            ->orWhere('activities', 'like', "%{$word}%")
+                            ->orWhereHas('destination', function ($q) use ($word) {
+                                $q->where('country', 'like', "%{$word}%");
+                            });
+                    });
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($results);
+    }
 }

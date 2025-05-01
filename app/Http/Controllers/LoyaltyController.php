@@ -98,7 +98,6 @@ class LoyaltyController extends Controller
     }
 
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -107,25 +106,61 @@ class LoyaltyController extends Controller
 
 
     public function donatePoints(Request $request): JsonResponse
-    {
-        $customer = Auth::guard('sanctum')->user();
+{
+    $customer = Auth::guard('sanctum')->user();
 
-        $validated = $request->validate([
-            'donate' => 'required|numeric|min:1',
-        ]);
+    $validated = $request->validate([
+        'donate' => 'required|numeric|min:1',
+    ]);
 
-        // Create donation record
-        $donation = Loyalty::create([
-            'customer_id' => $customer->id,
-            'points_earned' => 0,
-            'points_redeemed' => 0,
-            'donate' => $validated['donate'],
-            'last_updated' => now(),
-        ]);
-
+    // Check if user has enough points to donate
+    if (($customer->loyalty_points ?? 0) < $validated['donate']) {
         return response()->json([
-            'message' => 'Donation successful.',
-            'donation' => $donation
-        ], 201);
+            'message' => 'Not enough points to donate.',
+        ], 400);
     }
+
+    // Deduct the donated points from customer's loyalty points
+    $customer->loyalty_points -= $validated['donate'];
+    $customer->save();
+
+    // Create donation record
+    $donation = Loyalty::create([
+        'customer_id' => $customer->id,
+        'points_earned' => 0,
+        'points_redeemed' => 0,
+        'donate' => $validated['donate'],
+        'last_updated' => now(),
+    ]);
+
+    // Calculate latest loyalty stats
+    $loyaltyStats = [
+        'valid_earned' => $customer->loyalty_points,
+        'total_redeemed' => Loyalty::where('customer_id', $customer->id)->sum('points_redeemed'),
+        'total_donated' => Loyalty::where('customer_id', $customer->id)->sum('donate'),
+        'available_points' => $customer->loyalty_points,
+        'membership_tier' => $this->calculateMembershipTier($customer->loyalty_points),
+    ];
+
+    return response()->json([
+        'message' => 'Donation successful.',
+        'donation' => $donation,
+        'loyalty' => $loyaltyStats,
+    ], 201);
+}
+
+/**
+ * Determine membership tier based on loyalty points.
+ */
+private function calculateMembershipTier(int $points): string
+{
+    if ($points >= 5000) {
+        return 'Gold';
+    } elseif ($points >= 2000) {
+        return 'Silver';
+    } else {
+        return 'Bronze';
+    }
+}
+
 }
