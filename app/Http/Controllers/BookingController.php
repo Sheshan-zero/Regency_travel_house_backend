@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Loyalty;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -133,10 +134,17 @@ class BookingController extends Controller
         // Save file if uploaded
         if ($request->hasFile('payment_reference')) {
             $path = $request->file('payment_reference')->store('payment_proofs', 'public');
+
             $booking->update([
                 'payment_reference' => $path,
                 'payment_verified' => 'pending'
             ]);
+
+            // Load related models for email
+            $booking->load(['customer', 'package']);
+
+            //  Send the admin email with attachment
+            Mail::to('sheshandealwis20021@gmail.com')->send(new \App\Mail\PaymentReceiptUploaded($booking));
         }
 
         // Update editable fields

@@ -55,7 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::get('/bookings/{id}', [BookingController::class, 'show']);
     Route::post('/bookings', [BookingController::class, 'store']);
-    Route::put('/bookings/{id}/customer-update', [BookingController::class, 'updateByCustomer']);
+    Route::post('/bookings/{id}/update', [BookingController::class, 'updateByCustomer']);
 
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout']);
