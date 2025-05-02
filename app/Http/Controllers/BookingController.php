@@ -240,5 +240,15 @@ class BookingController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+
+        // Update editable fields
+        $booking->update([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'number_of_people' => $request->number_of_people,
+            'special_requests' => $request->special_requests,
+        ]);
+
+        return response()->json(['message' => 'Booking updated. Pending admin confirmation.']);
     }
 }

@@ -75,6 +75,8 @@ Route::post('/staff/reset-password', [StaffPasswordResetController::class, 'rese
 
 Route::post('/customer/forgot-password', [CustomerPasswordResetController::class, 'sendResetLinkEmail']);
 Route::post('/customer/reset-password', [CustomerPasswordResetController::class, 'reset']);
+Route::get('/packages/{id}/map-itinerary', [ItineraryController::class, 'mapData']);
+
 
 
 

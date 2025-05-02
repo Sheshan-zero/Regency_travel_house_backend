@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 
 class ItineraryController extends Controller
 {
-    // 🔹 View all itineraries for a given package
+    // View all itineraries for a given package
     public function index($package_id): JsonResponse
     {
         $itineraries = Itinerary::where('package_id', $package_id)
@@ -41,7 +41,7 @@ class ItineraryController extends Controller
         return response()->json(['message' => 'Itinerary created', 'data' => $itinerary], 201);
     }
 
-    // 🔹 Update itinerary
+    // Update itinerary
     public function update(Request $request, $id): JsonResponse
     {
         $itinerary = Itinerary::findOrFail($id);
@@ -58,7 +58,7 @@ class ItineraryController extends Controller
         return response()->json(['message' => 'Itinerary updated', 'data' => $itinerary]);
     }
 
-    // 🔹 Delete itinerary
+    // Delete itinerary
     public function destroy($id): JsonResponse
     {
         $itinerary = Itinerary::findOrFail($id);
@@ -66,4 +66,15 @@ class ItineraryController extends Controller
 
         return response()->json(['message' => 'Itinerary deleted']);
     }
+
+    // Fetch Itineraries for Map
+    public function mapData($packageId): JsonResponse
+    {
+        $itineraries = Itinerary::where('package_id', $packageId)
+            ->orderBy('day_number')
+            ->get();
+
+        return response()->json($itineraries);
+    }
+
 }
