@@ -147,9 +147,6 @@ class BookingController extends Controller
             'special_requests' => $request->special_requests,
         ]);
 
-        // Optionally: notify admin via Notification/Event
-        // Notification::send($adminUsers, new BookingUpdatedNotification($booking));
-
         return response()->json(['message' => 'Booking updated. Pending admin confirmation.']);
     }
 

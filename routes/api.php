@@ -40,6 +40,8 @@ Route::post('/staff/forgot-password', [StaffPasswordResetController::class, 'sen
 Route::post('/staff/reset-password', [StaffPasswordResetController::class, 'reset']);
 Route::post('/customer/forgot-password', [CustomerPasswordResetController::class, 'sendResetLinkEmail']);
 Route::post('/customer/reset-password', [CustomerPasswordResetController::class, 'reset']);
+Route::get('/packages/{id}/map-itinerary', [ItineraryController::class, 'mapData']);
+
 
 
 
