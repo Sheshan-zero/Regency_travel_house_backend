@@ -69,8 +69,10 @@ Route::post('/careers/apply', [JobApplicationController::class, 'store']);
 Route::get('/destinations/{id}/images', [ImageController::class, 'getImagesByDestination']);
 Route::get('/images/{id}', [ImageController::class, 'show']);
 Route::get('/packages/{id}/images', [ImageController::class, 'getImagesByPackage']);
+
 Route::post('/staff/forgot-password', [StaffPasswordResetController::class, 'sendResetLinkEmail']);
 Route::post('/staff/reset-password', [StaffPasswordResetController::class, 'reset']);
+
 Route::post('/customer/forgot-password', [CustomerPasswordResetController::class, 'sendResetLinkEmail']);
 Route::post('/customer/reset-password', [CustomerPasswordResetController::class, 'reset']);
 
@@ -90,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::get('/bookings/{id}', [BookingController::class, 'show']);
     Route::post('/bookings', [BookingController::class, 'store']);
-    Route::put('/bookings/{id}/customer-update', [BookingController::class, 'updateByCustomer']);
+ 
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
@@ -98,6 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy']);
     Route::get('/booking/confirmed', [BookingController::class, 'confirmed']);
     Route::get('/booking/transactions', [BookingController::class, 'transactions']);
+    Route::put('/bookings/{id}/customer-update', [BookingController::class, 'updateByCustomer']);
 
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout']);

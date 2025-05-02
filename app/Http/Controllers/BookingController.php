@@ -200,11 +200,11 @@ class BookingController extends Controller
 
             // Validate input fields
             $validated = $request->validate([
-                'start_date' => 'nullable|date',
+                // 'start_date' => 'nullable|date',
                 'travel_date' => 'nullable|date',
-                'end_date' => 'nullable|date|after_or_equal:start_date',
+                // 'end_date' => 'nullable|date|after_or_equal:start_date',
                 'number_of_travelers' => 'nullable|integer|min:1',
-                'special_requests' => 'nullable|string|max:1000',
+                // 'special_requests' => 'nullable|string|max:1000',
                 'payment_reference' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             ]);
 
@@ -219,11 +219,11 @@ class BookingController extends Controller
             }
 
             // Update the rest of the fields (only if provided)
-            $booking->start_date = $validated['start_date'] ?? $booking->start_date;
+            // $booking->start_date = $validated['start_date'] ?? $booking->start_date;
             $booking->travel_date = $validated['travel_date'] ?? $booking->travel_date;
-            $booking->end_date = $validated['end_date'] ?? $booking->end_date;
+            // $booking->end_date = $validated['end_date'] ?? $booking->end_date;
             $booking->number_of_travelers = $validated['number_of_travelers'] ?? $booking->number_of_travelers;
-            $booking->special_requests = $validated['special_requests'] ?? $booking->special_requests;
+                // $booking->special_requests = $validated['special_requests'] ?? $booking->special_requests;
 
             $booking->save();
 

@@ -33,16 +33,28 @@ class StaffResetPasswordNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
-        $url = url("/reset-password/staff/{$this->token}?email=" . urlencode($notifiable->email));
+    // public function toMail(object $notifiable): MailMessage
+    // {
+    //     $url = url("http://localhost:5173/reset-password?token={$this->token}?email=" . urlencode($notifiable->email));
 
-        return (new MailMessage)
-            ->subject('Reset Your Staff Password')
-            ->line('Click the button below to reset your password.')
-            ->action('Reset Password', $url)
-            ->line('If you did not request this, no action is needed.');
-    }
+    //     return (new MailMessage)
+    //         ->subject('Reset Your Staff Password')
+    //         ->line('Click the button below to reset your password.')
+    //         ->action('Reset Password', $url)
+    //         ->line('If you did not request this, no action is needed.');
+    // }
+
+    public function toMail(object $notifiable): MailMessage
+{
+    $url = "http://localhost:5173/reset-password/staff?token={$this->token}&email=" . urlencode($notifiable->email);
+
+    return (new MailMessage)
+        ->subject('Reset Your Staff Password')
+        ->line('Click the button below to reset your password.')
+        ->action('Reset Password', $url)
+        ->line('If you did not request this, no action is needed.');
+}
+
 
     /**
      * Get the array representation of the notification.
