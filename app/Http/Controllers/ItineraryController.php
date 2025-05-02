@@ -33,9 +33,10 @@ class ItineraryController extends Controller
             'day_number' => 'required|integer|min:1',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'location' => 'required|string'
+            'location' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
-
         $itinerary = Itinerary::create($request->all());
 
         return response()->json(['message' => 'Itinerary created', 'data' => $itinerary], 201);
@@ -50,10 +51,13 @@ class ItineraryController extends Controller
             'day_number' => 'nullable|integer|min:1',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'location' => 'required|string'
+            'location' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+
         ]);
 
-        $itinerary->update($request->only(['day', 'title', 'description', 'location']));
+        $itinerary->update($request->only(['day', 'title', 'description', 'location','latitude','longitude']));
 
         return response()->json(['message' => 'Itinerary updated', 'data' => $itinerary]);
     }
@@ -76,5 +80,4 @@ class ItineraryController extends Controller
 
         return response()->json($itineraries);
     }
-
 }
