@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Laravel\Pail\ValueObjects\Origin\Console;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -126,119 +127,40 @@ class BookingController extends Controller
     }
 
 
-    // public function updateByCustomer(Request $request, $id): JsonResponse
-    // {        
-    //     try {
-    //         $booking = Booking::find($id);
-    //         $customer = Auth::user();
-
-    //         if (!$booking || $booking->customer_id !== $customer->id) {
-    //             return response()->json(['message' => 'Unauthorized'], 403);
-    //         }
-
-    //         $validated = $request->validate([
-    //             'start_date' => 'nullable|date',
-    //             'travel_date' => 'nullable|date',
-    //             'end_date' => 'nullable|date|after_or_equal:start_date',
-    //             'number_of_people' => 'nullable|integer|min:1',
-    //             'special_requests' => 'nullable|string|max:1000',
-    //             'payment_reference' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-    //         ]);
-
-    //         // Handle file upload
-    //         if ($request->hasFile('payment_reference')) {
-    //             $file = $request->file('payment_reference');
-    //             $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-    //             $file->storeAs('public/payment_proofs', $filename);
-
-    //             // Save filename to DB
-    //             $booking->payment_reference = $filename;
-    //             $booking->payment_verified = 'pending';
-    //         }
-
-    //         // Update booking fields
-    //         $booking->start_date = $validated['start_date'] ?? $booking->start_date;
-    //         $booking->travel_date = $validated['travel_date'] ?? $booking->travel_date;
-    //         $booking->end_date = $validated['end_date'] ?? $booking->end_date;
-    //         $booking->number_of_people = $validated['number_of_people'] ?? $booking->number_of_people;
-    //         $booking->special_requests = $validated['special_requests'] ?? $booking->special_requests;
-    //         // $booking->payment_reference = $validated['payment_reference'] ?? $booking->payment_reference;
-    //         if ($request->hasFile('payment_reference')) {
-    //             $file = $request->file('payment_reference');
-    //             $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-    //             $file->storeAs('public/payment_proofs', $filename);
-
-    //             $booking->payment_reference = $filename;
-    //             $booking->payment_verified = 'pending';
-    //         }
-
-
-
-
-    //         $booking->save();
-
-    //         return response()->json(['message' => 'Booking updated. Pending admin confirmation.'], 200);
-    //     } catch (\Throwable $e) {
-    //         return response()->json([
-    //             'message' => 'Server error',
-    //             'error' => $e->getMessage(),
-    //             // Optional: remove trace in production for security
-    //             'trace' => config('app.debug') ? $e->getTraceAsString() : 'Trace hidden',
-    //         ], 500);
-    //     }
-    // }
-
     public function updateByCustomer(Request $request, $id): JsonResponse
     {
-        try {
-            $booking = Booking::find($id);
-            $customer = Auth::user();
 
-            if (!$booking || $booking->customer_id !== $customer->id) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
+        $booking = Booking::find($id);
+        $customer = Auth::user();
 
-            // Validate input fields
-            $validated = $request->validate([
-                // 'start_date' => 'nullable|date',
-                'travel_date' => 'nullable|date',
-                // 'end_date' => 'nullable|date|after_or_equal:start_date',
-                'number_of_travelers' => 'nullable|integer|min:1',
-                // 'special_requests' => 'nullable|string|max:1000',
-                'payment_reference' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        if (!$booking || $booking->customer_id !== $customer->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'travel_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'number_of_people' => 'nullable|integer|min:1',
+            'special_requests' => 'nullable|string|max:1000',
+            'payment_reference' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        // Save file if uploaded
+        if ($request->hasFile('payment_reference')) {
+            $path = $request->file('payment_reference')->store('payment_proofs', 'public');
+
+            $booking->update([
+                'payment_reference' => $path,
+                'payment_verified' => 'pending'
             ]);
 
-            // Handle receipt file upload if provided
-            if ($request->hasFile('payment_reference')) {
-                $file = $request->file('payment_reference');
-                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('public/payment_proofs', $filename);
+            // Load related models for email
+            $booking->load(['customer', 'package']);
 
-                $booking->payment_reference = $filename;
-                $booking->payment_verified = 'pending';
-            }
-
-            // Update the rest of the fields (only if provided)
-            // $booking->start_date = $validated['start_date'] ?? $booking->start_date;
-            $booking->travel_date = $validated['travel_date'] ?? $booking->travel_date;
-            // $booking->end_date = $validated['end_date'] ?? $booking->end_date;
-            $booking->number_of_travelers = $validated['number_of_travelers'] ?? $booking->number_of_travelers;
-                // $booking->special_requests = $validated['special_requests'] ?? $booking->special_requests;
-
-            $booking->save();
-
-            return response()->json(['message' => 'Booking updated. Pending admin confirmation.'], 200);
-        } catch (\Throwable $e) {
-            Log::error("Booking update failed", [
-                'booking_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : 'Trace hidden'
-            ]);
-
-            return response()->json([
-                'message' => 'Server error during booking update.',
-                'error' => $e->getMessage(),
-            ], 500);
+            //  Send the admin email with attachment
+            Mail::to('pamudithagangana45@gmail.com')->send(new \App\Mail\PaymentReceiptUploaded($booking));
         }
 
         // Update editable fields

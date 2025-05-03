@@ -79,8 +79,6 @@ Route::get('/packages/{id}/map-itinerary', [ItineraryController::class, 'mapData
 
 
 
-
-
 /*Protected Routes - Customer (Sanctum)*/
 
 Route::middleware('auth:sanctum')->get('/booking/confirmed', [BookingController::class, 'confirmed']);
@@ -94,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::get('/bookings/{id}', [BookingController::class, 'show']);
     Route::post('/bookings', [BookingController::class, 'store']);
- 
+
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
     Route::get('/bookings/{booking}', [BookingController::class, 'show']);
@@ -102,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy']);
     Route::get('/booking/confirmed', [BookingController::class, 'confirmed']);
     Route::get('/booking/transactions', [BookingController::class, 'transactions']);
-    Route::put('/bookings/{id}/customer-update', [BookingController::class, 'updateByCustomer']);
+    Route::post('/bookings/{id}/update', [BookingController::class, 'updateByCustomer']);
 
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout']);
@@ -121,7 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wishlist', [WishlistController::class, 'store']);
     Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
     // Customers (for Admin view or Super Users)
-    
+
     // Complaints
     Route::get('/complaints', [ComplaintController::class, 'index']);
     Route::post('/complaints', [ComplaintController::class, 'store']);
@@ -130,10 +128,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/complaints/{complaint}', [ComplaintController::class, 'destroy']);
 
     Route::post('/quotes', [QuoteController::class, 'store']);
-    
-    Route::post('/loyalty/donate', [LoyaltyController::class, 'donatePoints']);
 
- 
+    Route::post('/loyalty/donate', [LoyaltyController::class, 'donatePoints']);
 });
 
 //  Protected Routes - Staff
@@ -156,7 +152,6 @@ Route::middleware('auth:staff')->group(function () {
     Route::get('/quotes', [QuoteController::class, 'index']);
     // Route::post('/quotes', [QuoteController::class, 'store']);
     Route::get('/customer/news', [CustomerAuthController::class, 'getNewslatterusers']);
-
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -166,7 +161,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/quotes', [QuoteController::class, 'store']);
 
     Route::get('/customer/notifications', [CustomerAuthController::class, 'notifications']);
-
 });
 
 // Shared Staff Routes

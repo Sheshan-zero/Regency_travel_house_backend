@@ -57,39 +57,6 @@ class StaffAuthController extends Controller
         ]);
     }
 
-    // public function register(Request $request): JsonResponse
-    // {
-    //     $admin = auth('staff')->user();
-
-    //     if (!$admin || $admin->role !== 'Admin') {
-    //         return response()->json(['message' => 'Unauthorized. Only admins can register staff.'], 403);
-    //     }
-
-    //     $validated = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:staff,email',
-    //         'password' => 'required|string|min:6|confirmed',
-    //         'role' => 'required|in:Admin,Manager,Support'
-    //     ]);
-
-    //     $staff = Staff::create([
-    //         'name' => $validated['name'],
-    //         'email' => $validated['email'],
-    //         'password' => bcrypt($validated['password']),
-    //         'role' => $validated['role']
-    //     ]);
-
-    //     // Send reset password email
-    //     Password::broker('staff')->sendResetLink(['email' => $validated['email']]);
-
-    //     return response()->json([
-    //         'message' => 'Staff registered successfully',
-    //         'staff' => $staff
-    //     ], 201);
-    // }
-
-
-
     public function register(Request $request): JsonResponse
     {
         $admin = auth('staff')->user();
