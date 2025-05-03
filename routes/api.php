@@ -40,17 +40,17 @@ Route::post('/customers/register', [CustomerController::class, 'register']);
 Route::post('/customers/login', [CustomerController::class, 'login']);
 
 Route::get('/packages/categorized', [PackageController::class, 'categorizedPackages']);
+
+Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/search', [PackageController::class, 'smartSearch']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
 Route::get('/packages/category/{category}', [PackageController::class, 'getByCategory']);
 Route::get('/packages/country/{country}', [PackageController::class, 'getByCountry']);
 Route::get('/packages/region/{region}', [PackageController::class, 'getByRegion']);
 Route::get('/packages/specialpackages', [PackageController::class, 'getBySpecialPackage']);
-Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/search', [PackageController::class, 'smartSearch']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
-Route::get('/packages/country/{country}', [PackageController::class, 'getByCountry']);
-Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/search', [PackageController::class, 'smartSearch']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
 
 Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);
