@@ -28,7 +28,7 @@ class JobApplicationAdminNotification extends Mailable
                     ->attach(
                         storage_path('app/public/' . $this->application->payment_reference),
                         [
-                            'as' => 'Payment_Receipt_' . $this->application->id . '.' . pathinfo($this->application->cv_path, PATHINFO_EXTENSION),
+                            'as' => 'CV' . $this->application->id . '.' . pathinfo($this->application->cv_path, PATHINFO_EXTENSION),
                             'mime' => mime_content_type(storage_path('app/public/' . $this->application->cv_path)),
                         ]
                     );
