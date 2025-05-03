@@ -12,27 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerAuthController extends Controller
 {
-    // public function register(Request $request): JsonResponse
-    // {
-    //     $request->validate([
-    //         'full_name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:customers,email',
-    //         'password' => 'required|string|min:6|confirmed'
-    //     ]);
-
-    //     $customer = Customer::create([
-    //         'full_name' => $request->full_name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password)
-    //     ]);
-
-    //     $token = $customer->createToken('customer_token')->plainTextToken;
-
-    //     return response()->json([
-    //         'user' => $customer,
-    //         'token' => $token
-    //     ]);
-    // }
 
     public function register(Request $request)
     {
@@ -67,32 +46,6 @@ class CustomerAuthController extends Controller
             'token' => $token
         ], 201);
     }
-
-    // public function update(Request $request, Customer $customer): JsonResponse
-    // {
-    //     if (Staff::id() !== $customer->id) {
-    //         return response()->json(['error' => 'Unauthorized'], 403);
-    //     }
-
-    //     $validated = $request->validate([
-    //         'full_name' => 'sometimes|string|max:255',
-    //         'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
-    //         'password' => 'nullable|string|min:8|confirmed',
-    //         'phone' => 'nullable|string|max:15',
-    //         'address' => 'nullable|string',
-    //         'country_of_residence' => 'nullable|string',
-    //         'nic' => 'nullable|string',
-    //         'date_of_birth' => 'nullable|date',
-    //         'gender' => 'nullable|string|in:Male,Female,Prefer not to say',
-    //     ]);
-
-    //     if (isset($validated['password'])) {
-    //         $validated['password'] = Hash::make($validated['password']);
-    //     }
-
-    //     $customer->update($validated);
-    //     return response()->json($customer);
-    // }
 
     public function update(Request $request, Customer $customer): JsonResponse
     {

@@ -97,11 +97,6 @@ class ImageController extends Controller
         return response()->json(['message' => 'Image deleted']);
     }
 
-    // public function getImagesByDestination($destination_id)
-    // {
-    //     $images = Image::where('destination_id', $destination_id)->get();
-    //     return response()->json($images);
-    // }
 
     public function getImagesByDestination($destination_id)
     {
